@@ -14,7 +14,7 @@ move usr/share/anaconda/restart-anaconda usr/bin
 %endfor
 
 ## move_repos()
-move etc/yum.repos.d etc/anaconda.repos.d
+## move etc/yum.repos.d etc/anaconda.repos.d
 
 ## Setup mdadm config to turn off homehost
 remove etc/mdadm.conf
@@ -86,8 +86,9 @@ append etc/shadow "install::14438:0:99999:7:::"
 ## remove root password
 replace "root:\*:" "root::" etc/shadow
 
+### TJD - no gui install
 ## gconf settings
-gconfset /desktop/gnome/interface/accessibility bool true
+#gconfset /desktop/gnome/interface/accessibility bool true
 
 ## gsettings settings
 install ${configdir}/org.gtk.Settings.Debug.gschema.override usr/share/glib-2.0/schemas
