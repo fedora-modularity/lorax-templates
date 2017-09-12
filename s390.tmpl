@@ -1,0 +1,53 @@
+<%page args="kernels, runtime_img, runtime_base, basearch, outroot"/>
+<%
+configdir="tmp/config_files/s390"
+BOOTDIR="images"
+KERNELDIR=BOOTDIR
+INITRD_ADDRESS="0x02000000"
+LORAXDIR="usr/share/lorax/"
+# The assumption seems to be that there is only one s390 kernel, ever
+kernel = kernels[0]
+%>
+
+mkdir images
+install ${runtime_img} images
+treeinfo stage2 mainimage images/${runtime_base}
+
+## install bootloader (such as it is) and bootloader config
+install ${configdir}/redhat.exec ${BOOTDIR}
+install ${configdir}/generic.prm ${BOOTDIR}
+install ${configdir}/genericdvd.prm ${BOOTDIR}
+install ${configdir}/generic.ins .
+
+## configure bootloader
+replace @INITRD_LOAD_ADDRESS@ ${INITRD_ADDRESS} generic.ins
+
+## install kernel
+installkernel images-${basearch} ${kernel.path} ${KERNELDIR}/kernel.img
+installinitrd images-${basearch} ${kernel.initrd.path} ${KERNELDIR}/initrd.img
+
+## s390 needs some extra boot config
+createaddrsize ${INITRD_ADDRESS} ${outroot}/${BOOTDIR}/initrd.img ${outroot}/${BOOTDIR}/initrd.addrsize
+
+## s390 also has some special treeinfo data
+treeinfo images-${basearch} initrd.addrsize ${BOOTDIR}/initrd.addrsize
+treeinfo images-${basearch} generic.prm ${BOOTDIR}/generic.prm
+treeinfo images-${basearch} genericdvd.prm ${BOOTDIR}/genericdvd.prm
+treeinfo images-${basearch} generic.ins generic.ins
+
+# Create optional product.img and updates.img
+<% imggraft=""; images=["product", "updates"] %>
+%for img in images:
+    %if exists("%s/%s/" % (LORAXDIR, img)):
+        installimg ${LORAXDIR}/${img}/ images/${img}.img
+        treeinfo images-${basearch} ${img}.img images/${img}.img
+        <% imggraft += " images/{0}.img={1}/images/{0}.img".format(img, outroot) %>
+    %endif
+%endfor
+
+# Inherit iso-graft/ if it exists from external templates
+<%
+    import os
+    if os.path.exists(workdir + "/iso-graft"):
+        imggraft += " " + workdir + "/iso-graft"
+%>
