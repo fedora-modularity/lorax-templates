@@ -11,6 +11,8 @@ LORAXDIR="usr/share/lorax/"
 # keep a comma-delimited list of platforms installed to add to .treeinfo
 platforms = ""
 delimiter = ''
+
+from os.path import basename
 %>
 
 mkdir images
@@ -48,11 +50,9 @@ treeinfo ${basearch} platforms ${platforms}
     %endif
 %endfor
 
-# Inherit iso-graft/ if it exists from external templates
-<%
-    import os
-    if os.path.exists(workdir + "/iso-graft"):
-        imggraft += " " + workdir + "/iso-graft"
-%>
+# Add the license files
+%for f in glob("/usr/share/licenses/*-release/*"):
+    install ${f} ${f|basename}
+%endfor
 
 ## FIXME: ARM may need some extra boot config
