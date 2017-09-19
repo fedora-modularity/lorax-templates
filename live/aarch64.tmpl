@@ -3,8 +3,14 @@
 configdir="tmp/config_files/aarch64"
 PXEBOOTDIR="images/pxeboot"
 KERNELDIR=PXEBOOTDIR
-STAGE2IMG="images/install.img"
+LIVEDIR="LiveOS"
 LORAXDIR="usr/share/lorax/"
+
+## Don't allow spaces or escape characters in the iso label
+def valid_label(ch):
+    return ch.isalnum() or ch == '_'
+
+isolabel = ''.join(ch if valid_label(ch) else '-' for ch in isolabel)
 
 from os.path import basename
 %>
@@ -19,9 +25,9 @@ from os.path import basename
         udfargs = ""
 %>
 
-mkdir images
-install ${runtime_img} ${STAGE2IMG}
-treeinfo stage2 mainimage ${STAGE2IMG}
+mkdir ${LIVEDIR}
+install ${runtime_img} ${LIVEDIR}/squashfs.img
+treeinfo stage2 mainimage ${LIVEDIR}/squashfs.img
 
 ## install kernels
 mkdir ${KERNELDIR}
@@ -81,7 +87,7 @@ runcmd mkisofs -o ${outroot}/images/boot.iso \
        ${efiargs} -R -J -V '${isolabel}' -T ${udfargs} \
        -graft-points \
        ${KERNELDIR}=${outroot}/${KERNELDIR} \
-       ${STAGE2IMG}=${outroot}/${STAGE2IMG} \
+       ${LIVEDIR}=${outroot}/${LIVEDIR} \
        ${efigraft} ${filegraft}
 treeinfo images-${basearch} boot.iso images/boot.iso
 %endif
