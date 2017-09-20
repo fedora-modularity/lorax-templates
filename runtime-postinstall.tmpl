@@ -14,7 +14,7 @@ move usr/share/anaconda/restart-anaconda usr/bin
 %endfor
 
 ## move_repos()
-## move etc/yum.repos.d etc/anaconda.repos.d
+move etc/yum.repos.d etc/anaconda.repos.d
 
 ## Setup mdadm config to turn off homehost
 remove etc/mdadm.conf
@@ -121,6 +121,6 @@ append etc/lvm/lvm.conf "global {\n\tuse_lvmetad = 1\n}\n"
 ## rpm initializes nss, which requires /dev/urandom to be present, hence the mknod
 runcmd chroot ${root} /usr/bin/mknod -m 666 /dev/random c 1 8
 runcmd chroot ${root} /usr/bin/mknod -m 666 /dev/urandom c 1 9
-#runcmd chroot ${root} /usr/bin/rpm -qa --pipe "tee /root/lorax-packages.log"
+runcmd chroot ${root} /usr/bin/rpm -qa --pipe "tee /root/lorax-packages.log"
 
 ## TODO: we could run prelink here if we wanted?
