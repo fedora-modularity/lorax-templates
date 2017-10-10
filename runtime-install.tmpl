@@ -33,7 +33,7 @@ installpkg grubby
     installpkg biosdevname memtest86+ syslinux
 %endif
 %if basearch in ("ppc", "ppc64", "ppc64le"):
-    installpkg fbset hfsutils kernel-bootwrapper ppc64-utils ppc64-diag
+    installpkg fbset hfsutils kernel-bootwrapper powerpc-utils-core
     installpkg grub2-tools grub2-tools-minimal grub2-tools-extra
     installpkg grub2-${basearch}
 %endif
